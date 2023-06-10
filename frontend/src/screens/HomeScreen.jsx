@@ -1,30 +1,30 @@
-import { useEffect, useState } from "react";
 import { Row, Col } from "react-bootstrap";
 import Product from "../components/Product.jsx";
-import axios from "axios";
+import { useGetProductsQuery } from "../store/slices/productsApiSlice.js";
 
 const HomeScreen = () => {
+  //rename data to products
+  const { data: products, error, isLoading } = useGetProductsQuery();
 
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      //data = await axios.get("/api/products").data;
-      const { data } = await axios.get("/api/products");
-      setProducts(data);
-    };
-    fetchProducts();
-  }, []); //[] means it will run only once i.e when page loads
   return (
     <div>
-      <h1>Latest Products</h1>
-      <Row>
-        {products.map((product) => (
-          <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
-            <Product product={product}></Product>
-          </Col>
-        ))}
-      </Row>
+      {/* check for loading and error */}
+      {isLoading ? (
+        <h2>Loading...</h2>
+      ) : error ? (
+        <h2>{error?.data?.message || error.error}</h2>
+      ) : (
+        <>
+          <h1>Latest Products</h1>
+          <Row>
+            {products.map((product) => (
+              <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
+                <Product product={product}></Product>
+              </Col>
+            ))}
+          </Row>
+        </>
+      )}
     </div>
   );
 };
