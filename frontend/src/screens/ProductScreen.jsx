@@ -1,13 +1,27 @@
-import { useParams, Link } from "react-router-dom";
-import { Row, Col, Image, ListGroup, Card, Button } from "react-bootstrap";
+import { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import {  Row, Col, Image, ListGroup, Card, Button, Form } from "react-bootstrap";
 import Rating from "../components/Rating";
 import { useGetProductByIdQuery } from "../store/slices/productsApiSlice.js";
+import { addToCart } from "../store/slices/cartSlice";
+import { useDispatch } from "react-redux";
 
 const ProductScreen = () => {
+  const [qty, setQty] = useState(1); //default qty is 1
+  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { id: productId } = useParams();
   //const product = products.find((p) => p._id === productId); //maps through the array and finds the product i.e if product._id matches with id of the url
 
   const { data: product, error, isLoading } = useGetProductByIdQuery(productId);
+
+
+  const addToCartHandler=()=>{
+    dispatch(addToCart({...product, qty})); //passing the product and also passing the quantity
+    navigate("/cart");
+  }
 
   return (
     <div>
@@ -66,12 +80,40 @@ const ProductScreen = () => {
                       </Col>
                     </Row>
                   </ListGroup.Item>
+                  {/* show this only if product is in stock */}
+                  {product.countInStock > 0 && (
+                    <ListGroup.Item>
+                      <Row>
+                        <Col>Qty</Col>
+                        <Col>
+                          <Form.Control
+                            as="select"
+                            value={qty}
+                            onChange={(e) => setQty(Number(e.target.value))}
+                          >
+                            {/* if we have 5 in stock, the allow selection upto 5 */}
+                            {[...Array(product.countInStock).keys()].map( //creates an array of length = no of stock
+                            //keys() creates an array of indexes i.e [0,1,2,3,4]
+                            //but index starts from 0, so we add 1 to each index, so that we get [1,2,3,4,5] as options
+                              (x) => (
+                                <option key={x + 1} value={x +1}>
+                                  {/* we want to show 1,2,3,4,5 */}
+                                  {x + 1}
+                                </option>
+                              )
+                            )}
+                          </Form.Control>
+                        </Col>
+                      </Row>
+                    </ListGroup.Item>
+                  )}
                   <ListGroup.Item>
                     {/* if no stock, then btn is disabled */}
                     <Button
                       className="btn-block"
                       type="button"
                       disabled={product.countInStock === 0}
+                      onClick={addToCartHandler}
                     >
                       Add to Cart
                     </Button>
