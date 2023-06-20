@@ -1,8 +1,47 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import User from "../models/userModel.js";
+import jwt from "jsonwebtoken";
 
 //login user and get token, route: POST /api/users/login
 const authUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body; //req.body is the data that is sent to the server as body
+
+  const user = await User.findOne({ email }); //find one record in the db that matches the email, email: email
+
+  //if user exists then send
+  if (user && (await user.matchPassword(password))) {
+    //2nd condition is true if the entered password matches the hashed password in the db, (see userModel.js)
+
+    //create a token
+    const token = jwt.sign(
+      {
+        //1st arg is object with payload, payload is an object literal containing the data to be encoded i.e user id
+        userId: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        //process.env.JWT_SECRET is the secretOrPrivateKey
+        expiresIn: "30d", //expires in 30 days
+      }
+    );
+    //setting jwt as http Only cookie
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development", //if in production then true, else false
+      maxAge: 30 * 24 * 60 * 60 * 1000, //30 days
+    });
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      // password: user.password, //we don't want to return the password
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(401); //unauthorized
+    throw new Error("Invalid email or password");
+  }
   res.send("auth user");
 });
 
