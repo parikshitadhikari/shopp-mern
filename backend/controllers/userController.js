@@ -1,6 +1,6 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import User from "../models/userModel.js";
-import jwt from "jsonwebtoken";
+import generateToken from "../utils/generateToken.js";
 
 //login user and get token, route: POST /api/users/login
 const authUser = asyncHandler(async (req, res) => {
@@ -12,24 +12,7 @@ const authUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     //2nd condition is true if the entered password matches the hashed password in the db, (see userModel.js)
 
-    //create a token
-    const token = jwt.sign(
-      {
-        //1st arg is object with payload, payload is an object literal containing the data to be encoded i.e user id
-        userId: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        //process.env.JWT_SECRET is the secretOrPrivateKey
-        expiresIn: "30d", //expires in 30 days
-      }
-    );
-    //setting jwt as http Only cookie
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== "development", //if in production then true, else false
-      maxAge: 30 * 24 * 60 * 60 * 1000, //30 days
-    });
+    generateToken(res, user._id); //generate token
 
     res.json({
       _id: user._id,
@@ -42,27 +25,92 @@ const authUser = asyncHandler(async (req, res) => {
     res.status(401); //unauthorized
     throw new Error("Invalid email or password");
   }
-  res.send("auth user");
 });
 
 //register user, route: POST /api/users
 const registerUser = asyncHandler(async (req, res) => {
-  res.send("register user");
+  const { name, email, password } = req.body;
+  //checking if user exists
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    res.status(400); //bad request
+    throw new Error("User already exists");
+  }
+
+  //if user doesn't exist then create a user
+  const user = await User.create({
+    name, //name: name
+    email,
+    password, //we store the hashed password in the db, pw is hashed in userModel.js
+  });
+  //if user is created then send the user data
+  if (user) {
+    generateToken(res, user._id); //generate token when user is registered
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data");
+  }
 });
 
 //logout user/ clear cookie, route: POST /api/users/logout, the access will be private
 const logoutUser = asyncHandler(async (req, res) => {
-  res.send("logout user");
+  res.cookie("jwt", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()), //expires immediately
+  });
+  res.status(200).json({ message: "user logged out" });
 });
 
 //get user profile, route: GET /api/users/profile, access: private
 const getUserProfile = asyncHandler(async (req, res) => {
-  res.send("get user profile");
+  //getting the user:
+  const user = await User.findById(req.user._id); //req.user is set in the protect middleware, and we can access the user in the protected routes as the user object will be on the req object on all our routes
+  if (user) {
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    }); //if user is found then send the user data
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
 });
 
 //update user profile, route: PUT /api/users/profile, access: private
 const updateUserProfile = asyncHandler(async (req, res) => {
-  res.send("update user profile");
+  //getting the user:
+  const user = await User.findById(req.user._id); //req.user is set in the protect middleware, and we can access the user in the protected routes as the user object will be on the req object on all our routes
+
+  if (user) {
+    //update the fields that we send in the req.body
+    user.name = req.body.name || user.name; //if name is sent in the req.body then update the name OR keep the name as it is
+    //above user is the user that is logged in
+    user.email = req.body.email || user.email;
+    //doing this way for pw, coz pw is hashed and we only want to deal with it if it is sent in the req.body
+    if (req.body.password) {
+      //if password is sent in the req.body then update the password
+      user.password = req.body.password;
+    }
+    const updatedUser = await user.save(); //save the updated user in the db
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
 });
 
 //get all users, route: GET /api/users, access: private/admin
