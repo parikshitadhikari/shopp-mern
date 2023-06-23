@@ -7,7 +7,8 @@ const initialState =
   //localStorage holds strings so we need to parse it as js object
   localStorage.getItem("cart")
     ? JSON.parse(localStorage.getItem("cart"))
-    : { cartItems: [] };
+    : { cartItems: [], shippingAddress: {}, paymentMethod: "PayPal" };
+// beside cartItems, we also need shippingAddress and paymentMethod as well, paymentMethod will be PayPal by default
 
 const cartSlice = createSlice({
   name: "cart",
@@ -31,8 +32,12 @@ const cartSlice = createSlice({
       state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
       return updateCart(state);
     },
+    saveShippingAddress: (state, action) => { //saving the shpping address in local storage
+      state.shippingAddress = action.payload;
+      return updateCart(state);
+    },
   },
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, saveShippingAddress } = cartSlice.actions;
 export default cartSlice.reducer;
