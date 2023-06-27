@@ -32,12 +32,23 @@ const cartSlice = createSlice({
       state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
       return updateCart(state);
     },
-    saveShippingAddress: (state, action) => { //saving the shpping address in local storage
+    saveShippingAddress: (state, action) => {
+      //saving the shpping address in local storage
       state.shippingAddress = action.payload;
+      return updateCart(state);
+    },
+    savePaymentMethod: (state, action) => {
+      //saving the payment method in local storage
+      state.paymentMethod = action.payload;
       return updateCart(state);
     },
   },
 });
 
-export const { addToCart, removeFromCart, saveShippingAddress } = cartSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  saveShippingAddress,
+  savePaymentMethod,
+} = cartSlice.actions;
 export default cartSlice.reducer;
