@@ -23,12 +23,14 @@ const cartSlice = createSlice({
           x._id === existItem._id ? item : x
         );
       } else {
+        // cant use state.cartItems.push as state is immutable
         state.cartItems = [...state.cartItems, item];
       }
 
       return updateCart(state);
     },
     removeFromCart: (state, action) => {
+      // payload will be the id of the item we want to delete
       state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
       return updateCart(state);
     },

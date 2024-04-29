@@ -12,9 +12,9 @@ export const updateCart = (state) => {
   );
 
   //calculate shipping price
-  state.shippingPrice = addDecimals(state.itemsPrice > 100 ? 0 : 100); //if order is >100, shipping is free else 10
+  state.shippingPrice = addDecimals(state.itemsPrice > 100 ? 0 : 10); //if order is >100, shipping is free else 10
 
-  //calculate tax price
+  //calculate tax price (15% tax)
   state.taxPrice = addDecimals(Number((0.15 * state.itemsPrice).toFixed(2))); //15% tax
 
   //calculate total price

@@ -30,7 +30,7 @@ const productSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId, //used for relating the product to the user that creates it, type will be mongoose object id, _id field is the object id
       required: true,
-      ref: "User", //this is for specifying from which collection this objectId is coming from, its coming from user collection
+      ref: "User",
       //ref is for relationship, we are creating a relationship between product and user, ref is the model we are referring to, in this case it is User model
     },
 

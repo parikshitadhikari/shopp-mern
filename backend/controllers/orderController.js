@@ -23,7 +23,7 @@ const addOrderItems = asyncHandel(async (req, res) => {
       orderItems: orderItems.map((x) => ({
         ...x,
         product: x._id,
-        _id: undefined,
+        _id: undefined, // we dont need order id
       })),
       user: req.user._id,
       shippingAddress,

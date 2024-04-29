@@ -37,7 +37,7 @@ const PlaceOrderScreen = () => {
       }).unwrap(); // unwrap() will return the actual data from the promise, and if there is an error then it will throw an error
       dispatch(clearCartItems()); //clearing cart
       navigate(`/order/${res._id}`); //redirecting to order screen
-    console.log(res)
+      console.log(res);
     } catch (error) {
       toast.error(error);
     }

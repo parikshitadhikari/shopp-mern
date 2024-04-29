@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import colors from "colors";
+import colors from "colors"
 import users from "./data/users.js";
 import products from "./data/products.js";
 import User from "./models/userModel.js";
@@ -18,7 +18,7 @@ const importData = async () => {
     await Order.deleteMany();
     await Product.deleteMany();
     await User.deleteMany();
-    // now insert the users
+    // now insert the users, createUsers is array of users
     const createUsers = await User.insertMany(users);
     // get the admin user
     const adminUser = createUsers[0]._id;

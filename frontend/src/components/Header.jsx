@@ -43,7 +43,7 @@ const Header = () => {
                   Cart
                   {cartItems.length > 0 && (
                     <Badge className="badge bg-danger ms-1">
-                      {/* item below is the current item for which it is being mapped */}
+                      {/* adding to get total no of items in cart */}
                       {cartItems.reduce((acc, item) => acc + item.qty, 0)}
                     </Badge>
                   )}

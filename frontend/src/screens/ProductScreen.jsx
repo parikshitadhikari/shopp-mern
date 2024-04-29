@@ -1,27 +1,34 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import {  Row, Col, Image, ListGroup, Card, Button, Form } from "react-bootstrap";
-import Rating from "../components/Rating";
+import {
+  Row,
+  Col,
+  Image,
+  ListGroup,
+  Card,
+  Button,
+  Form,
+} from "react-bootstrap";
+import Rating from "../components/Rating.jsx";
 import { useGetProductByIdQuery } from "../store/slices/productsApiSlice.js";
-import { addToCart } from "../store/slices/cartSlice";
+import { addToCart } from "../store/slices/cartSlice.js";
 import { useDispatch } from "react-redux";
 
 const ProductScreen = () => {
   const [qty, setQty] = useState(1); //default qty is 1
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // renaming id to productId
   const { id: productId } = useParams();
-  //const product = products.find((p) => p._id === productId); //maps through the array and finds the product i.e if product._id matches with id of the url
 
   const { data: product, error, isLoading } = useGetProductByIdQuery(productId);
 
-
-  const addToCartHandler=()=>{
-    dispatch(addToCart({...product, qty})); //passing the product and also passing the quantity
+  const addToCartHandler = () => {
+    dispatch(addToCart({ ...product, qty })); //passing the product and also passing the quantity
     navigate("/cart");
-  }
+  };
 
   return (
     <div>
@@ -33,8 +40,7 @@ const ProductScreen = () => {
         <h2>Loading...</h2>
       ) : error ? (
         <h2>{error?.data?.message || error.error}</h2>
-      ) : (
-        <>
+      ) : 
           <Row>
             <Col md={5}>
               {/* fluid allows image to get smaller so that its responsive */}
@@ -91,12 +97,13 @@ const ProductScreen = () => {
                             value={qty}
                             onChange={(e) => setQty(Number(e.target.value))}
                           >
-                            {/* if we have 5 in stock, the allow selection upto 5 */}
-                            {[...Array(product.countInStock).keys()].map( //creates an array of length = no of stock
-                            //keys() creates an array of indexes i.e [0,1,2,3,4]
-                            //but index starts from 0, so we add 1 to each index, so that we get [1,2,3,4,5] as options
+                            {/* if we have 5 in stock, then allow selection upto 5 */}
+                            {[...Array(product.countInStock).keys()].map(
+                              //creates an array of length = no of stock
+                              //keys() creates an array of indexes i.e [0,1,2,3,4]
+                              //but index starts from 0, so we add 1 to each index, so that we get [1,2,3,4,5] as options
                               (x) => (
-                                <option key={x + 1} value={x +1}>
+                                <option key={x + 1} value={x + 1}>
                                   {/* we want to show 1,2,3,4,5 */}
                                   {x + 1}
                                 </option>
@@ -122,8 +129,7 @@ const ProductScreen = () => {
               </Card>
             </Col>
           </Row>
-        </>
-      )}
+      }
     </div>
   );
 };

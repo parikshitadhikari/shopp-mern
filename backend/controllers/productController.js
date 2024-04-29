@@ -1,5 +1,5 @@
-import asyncHandler from "../middleware/asyncHandler.js";
-import Product from "../models/productModel.js"
+import asyncHandler from "../middleware/asyncHandler.js"; // custom async handler
+import Product from "../models/productModel.js";
 
 //fetch all the products
 const getProducts = asyncHandler(async (req, res) => {
