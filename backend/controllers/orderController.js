@@ -54,7 +54,8 @@ const getOrderById = asyncHandel(async (req, res) => {
     "name email"
   ); // add name and email to the order, so from "user" collection, add "name email"
 
-  if (order) { //if order is found then send the orderI
+  if (order) {
+    //if order is found then send the orderI
     res.json(order);
   } else {
     res.status(404).json({ message: "Order not found" });
@@ -63,24 +64,24 @@ const getOrderById = asyncHandel(async (req, res) => {
 
 //update order to paid, put: api/orders/:id/pay, private
 const updateOrderToPaid = asyncHandel(async (req, res) => {
-  //   const order = await Order.findById(req.params.id);
+  const order = await Order.findById(req.params.id); // get the order
 
-  //   if (order) {
-  //     order.isPaid = true;
-  //     order.paidAt = Date.now();
-  //     order.paymentResult = {
-  //       id: req.body.id,
-  //       status: req.body.status,
-  //       update_time: req.body.update_time,
-  //       email_address: req.body.payer.email_address,
-  //     };
+  if (order) {
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    // these below will come from paypal after order is paid
+    order.paymentResult = {
+      id: req.body.id,
+      status: req.body.status,
+      update_time: req.body.update_time,
+      email_address: req.body.payer.email_address,
+    };
 
-  //     const updatedOrder = await order.save();
-  //     res.json(updatedOrder);
-  //   } else {
-  //     res.status(404).json({ message: "Order not found" });
-  //   }
-  res.send("update order to paid");
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404).json({ message: "Order not found" });
+  }
 });
 
 //update order to delivered, put: api/orders/:id/deliver, private/admin
