@@ -4,7 +4,11 @@ import { Row, Col, ListGroup, Image, Card, Button } from "react-bootstrap";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useGetOrderDetailsQuery } from "../store/slices/ordersApiSlice";
+import {
+  useGetOrderDetailsQuery,
+  usePayOrderMutation,
+  useGetPaypalClientIdQuery,
+} from "../store/slices/ordersApiSlice";
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
@@ -16,6 +20,7 @@ const OrderScreen = () => {
     error,
   } = useGetOrderDetailsQuery(orderId); // getting details of the order
 
+  // renaming isLoading to loadingPay as we already have isLoading
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
   const [deliverOrder, { isLoading: loadingDeliver }] =
@@ -31,6 +36,7 @@ const OrderScreen = () => {
     error: errorPayPal,
   } = useGetPaypalClientIdQuery();
 
+  // to load the paypal script
   useEffect(() => {
     if (!errorPayPal && !loadingPayPal && paypal.clientId) {
       const loadPaypalScript = async () => {
@@ -44,6 +50,7 @@ const OrderScreen = () => {
         paypalDispatch({ type: "setLoadingStatus", value: "pending" });
       };
       if (order && !order.isPaid) {
+        // order is not paid
         if (!window.paypal) {
           loadPaypalScript();
         }

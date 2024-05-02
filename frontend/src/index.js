@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Provider } from "react-redux";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import store from "./store/store.js";
 import App from "./App.js";
 import "bootstrap/dist/css/bootstrap.min.css"; //importing bootstrap css
@@ -45,7 +46,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       {/* providing router as a prop */}
-      <RouterProvider router={router} />
+      <PayPalScriptProvider deferLoading={true}>
+        <RouterProvider router={router} />
+      </PayPalScriptProvider>
     </Provider>
   </React.StrictMode>
 );
