@@ -23,8 +23,8 @@ const OrderScreen = () => {
   // renaming isLoading to loadingPay as we already have isLoading
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
-  const [deliverOrder, { isLoading: loadingDeliver }] =
-    useDeliverOrderMutation();
+  // const [deliverOrder, { isLoading: loadingDeliver }] =
+  //   useDeliverOrderMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -59,9 +59,10 @@ const OrderScreen = () => {
   }, [errorPayPal, loadingPayPal, order, paypal, paypalDispatch]);
 
   function onApprove(data, actions) {
+    // the details  come from paypal
     return actions.order.capture().then(async function (details) {
       try {
-        await payOrder({ orderId, details });
+        await payOrder({ orderId, details }); // payorder is coming from usepayorder mutation
         refetch();
         toast.success("Order is paid");
       } catch (err) {
@@ -70,12 +71,12 @@ const OrderScreen = () => {
     });
   }
 
-  // TESTING ONLY! REMOVE BEFORE PRODUCTION
+  // only for testing, not for production
   // async function onApproveTest() {
   //   await payOrder({ orderId, details: { payer: {} } });
   //   refetch();
 
-  //   toast.success('Order is paid');
+  //   toast.success("Order is paid");
   // }
 
   function onError(err) {
@@ -96,10 +97,10 @@ const OrderScreen = () => {
       });
   }
 
-  const deliverHandler = async () => {
-    await deliverOrder(orderId);
-    refetch();
-  };
+  // const deliverHandler = async () => {
+  //   await deliverOrder(orderId);
+  //   refetch();
+  // };
 
   return isLoading ? (
     <h1>Loading...</h1>
@@ -129,7 +130,7 @@ const OrderScreen = () => {
               {order.isDelivered ? (
                 <h2>Delivered on {order.deliveredAt}</h2>
               ) : (
-                <h2>Not Delivered</h2>
+                <h4>Not Delivered</h4>
               )}
             </ListGroup.Item>
 
@@ -142,7 +143,7 @@ const OrderScreen = () => {
               {order.isPaid ? (
                 <h2>Paid on {order.paidAt}</h2>
               ) : (
-                <h2>Not Paid</h2>
+                <h4>Not Paid</h4>
               )}
             </ListGroup.Item>
 
@@ -201,6 +202,7 @@ const OrderScreen = () => {
                 <Row>
                   <Col>Tax</Col>
                   <Col>${order.taxPrice}</Col>
+                  {console.log(order)}
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
@@ -217,13 +219,13 @@ const OrderScreen = () => {
                     <h1>Loading...</h1>
                   ) : (
                     <div>
-                      {/* THIS BUTTON IS FOR TESTING! REMOVE BEFORE PRODUCTION! */}
+                      {/* only for testing, not for production! */}
                       {/* <Button
                         style={{ marginBottom: '10px' }}
                         onClick={onApproveTest}
                       >
                         Test Pay Order
-                      </Button> */}
+                  </Button> */}
 
                       <div>
                         <PayPalButtons
@@ -237,8 +239,6 @@ const OrderScreen = () => {
                 </ListGroup.Item>
               )}
 
-              {loadingDeliver && <h1>Loading...</h1>}
-
               {userInfo &&
                 userInfo.isAdmin &&
                 order.isPaid &&
@@ -247,7 +247,7 @@ const OrderScreen = () => {
                     <Button
                       type="button"
                       className="btn btn-block"
-                      onClick={deliverHandler}
+                      // onClick={deliverHandler}
                     >
                       Mark As Delivered
                     </Button>
