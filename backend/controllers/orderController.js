@@ -86,18 +86,17 @@ const updateOrderToPaid = asyncHandel(async (req, res) => {
 
 //update order to delivered, put: api/orders/:id/deliver, private/admin
 const updateOrderToDelivered = asyncHandel(async (req, res) => {
-  //   const order = await Order.findById(req.params.id);
+  // getting the order
+  const order = await Order.findById(req.params.id);
 
-  //   if (order) {
-  //     order.isDelivered = true;
-  //     order.deliveredAt = Date.now();
-
-  //     const updatedOrder = await order.save();
-  //     res.json(updatedOrder);
-  //   } else {
-  //     res.status(404).json({ message: "Order not found" });
-  //   }
-  res.send("update order to delivered");
+  if (order) {
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404).json({ message: "Order not found" });
+  }
 });
 
 //get all orders, get: api/orders, private/admin

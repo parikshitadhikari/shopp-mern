@@ -8,6 +8,7 @@ import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
   useGetPaypalClientIdQuery,
+  useDeliverOrderMutation,
 } from "../store/slices/ordersApiSlice";
 
 const OrderScreen = () => {
@@ -23,8 +24,8 @@ const OrderScreen = () => {
   // renaming isLoading to loadingPay as we already have isLoading
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
-  // const [deliverOrder, { isLoading: loadingDeliver }] =
-  //   useDeliverOrderMutation();
+  const [deliverOrder, { isLoading: loadingDeliver }] =
+    useDeliverOrderMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -97,10 +98,10 @@ const OrderScreen = () => {
       });
   }
 
-  // const deliverHandler = async () => {
-  //   await deliverOrder(orderId);
-  //   refetch();
-  // };
+  const deliverHandler = async () => {
+    await deliverOrder(orderId);
+    refetch();
+  };
 
   return isLoading ? (
     <h1>Loading...</h1>
@@ -238,16 +239,16 @@ const OrderScreen = () => {
                   )}
                 </ListGroup.Item>
               )}
-
+              {loadingDeliver && <h2>Loading...</h2>}
               {userInfo &&
-                userInfo.isAdmin &&
-                order.isPaid &&
-                !order.isDelivered && (
+                userInfo.isAdmin && // user must be admin to mark as delivered
+                order.isPaid && // order must have been paid
+                !order.isDelivered && ( // order should not have been delivered
                   <ListGroup.Item>
                     <Button
                       type="button"
                       className="btn btn-block"
-                      // onClick={deliverHandler}
+                      onClick={deliverHandler}
                     >
                       Mark As Delivered
                     </Button>
