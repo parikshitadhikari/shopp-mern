@@ -15,12 +15,12 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const logoutHandler = async() => {
+  const logoutHandler = async () => {
     try {
-      await logoutApiCall().unwrap();//unwrap the promise returned by the login function
+      await logoutApiCall().unwrap(); //unwrap the promise returned by the login function
       dispatch(logout()); //dispatch the logout action, which will clear the localStorage and set userInfo to null
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -68,6 +68,21 @@ const Header = () => {
                     Sign In
                   </Nav.Link>
                 </LinkContainer>
+              )}
+              
+              {/*dropdown for admin*/}
+              {userInfo && userInfo.isAdmin && (
+                <NavDropdown title="Admin" id="adminmenu">
+                  <LinkContainer to="/admin/productlist">
+                    <NavDropdown.Item>Products</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/orderlist">
+                    <NavDropdown.Item>Orders</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/userlist">
+                    <NavDropdown.Item>Users</NavDropdown.Item>
+                  </LinkContainer>
+                </NavDropdown>
               )}
             </Nav>
           </Navbar.Collapse>
