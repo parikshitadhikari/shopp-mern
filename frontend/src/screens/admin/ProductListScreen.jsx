@@ -4,28 +4,28 @@ import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import {
   useGetProductsQuery,
-//   useDeleteProductMutation,
+  useDeleteProductMutation,
   useCreateProductMutation,
 } from "../../store/slices/productsApiSlice";
 import { toast } from "react-toastify";
 
 const ProductListScreen = () => {
-
   const { data, isLoading, error, refetch } = useGetProductsQuery();
 
-//   const [deleteProduct, { isLoading: loadingDelete }] =
-//     useDeleteProductMutation();
+  const [deleteProduct, { isLoading: loadingDelete }] =
+    useDeleteProductMutation();
 
-//   const deleteHandler = async (id) => {
-//     if (window.confirm("Are you sure")) {
-//       try {
-//         await deleteProduct(id);
-//         refetch();
-//       } catch (err) {
-//         toast.error(err?.data?.message || err.error);
-//       }
-//     }
-//   };
+  const deleteHandler = async (id) => {
+    if (window.confirm("Are you sure")) {
+      try {
+        await deleteProduct(id);
+        refetch();
+        toast.success("Product deleted");
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
+  };
 
   const [createProduct, { isLoading: loadingCreate }] =
     useCreateProductMutation();
@@ -35,6 +35,7 @@ const ProductListScreen = () => {
       try {
         await createProduct();
         refetch();
+        toast.success("Product created")
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
@@ -55,7 +56,7 @@ const ProductListScreen = () => {
       </Row>
 
       {loadingCreate && <h2>Loading...</h2>}
-      {/*loadingDelete && <h2>Loading...</h2>*/}
+      {loadingDelete && <h2>Loading...</h2>}
       {isLoading ? (
         <h2>Loading...</h2>
       ) : error ? (
@@ -90,7 +91,7 @@ const ProductListScreen = () => {
                     <Button
                       variant="danger"
                       className="btn-sm"
-                    //   onClick={() => deleteHandler(product._id)}
+                      onClick={() => deleteHandler(product._id)}
                     >
                       <FaTrash style={{ color: "white" }} />
                     </Button>
