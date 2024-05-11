@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
-  //   useUploadProductImageMutation,
+  useUploadProductImageMutation,
 } from "../../store/slices/productsApiSlice";
 
 const ProductEditScreen = () => {
@@ -30,8 +30,8 @@ const ProductEditScreen = () => {
   const [updateProduct, { isLoading: loadingUpdate }] =
     useUpdateProductMutation();
 
-  //   const [uploadProductImage, { isLoading: loadingUpload }] =
-  //     useUploadProductImageMutation();
+  const [uploadProductImage, { isLoading: loadingUpload }] =
+    useUploadProductImageMutation();
 
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ const ProductEditScreen = () => {
         category,
         description,
         countInStock,
-      }).unwrap(); // NOTE: here we need to unwrap the Promise to catch any rejection in our catch block
+      }).unwrap(); // here we need to unwrap the Promise to catch any rejection in our catch block
       toast.success("Product updated");
       refetch();
       navigate("/admin/productlist");
@@ -72,9 +72,9 @@ const ProductEditScreen = () => {
     const formData = new FormData();
     formData.append("image", e.target.files[0]);
     try {
-      //   const res = await uploadProductImage(formData).unwrap();
-      //   toast.success(res.message);
-      //   setImage(res.image);
+      const res = await uploadProductImage(formData).unwrap();
+      toast.success(res.message);
+      setImage(res.image);
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
@@ -91,7 +91,7 @@ const ProductEditScreen = () => {
         {isLoading ? (
           <h2>Loading...</h2>
         ) : error ? (
-          <h2 variant="danger">{/*error.data.message*/}</h2>
+          <h2 variant="danger">{error.data.message}</h2>
         ) : (
           <Form onSubmit={submitHandler}>
             <Form.Group controlId="name">
@@ -127,7 +127,7 @@ const ProductEditScreen = () => {
                 onChange={uploadFileHandler}
                 type="file"
               ></Form.Control>
-              {"loadingUpload" == "load" && <h2>Loading...</h2>}
+              {loadingUpload && <h2>Loading...</h2>}
             </Form.Group>
 
             <Form.Group controlId="brand">
