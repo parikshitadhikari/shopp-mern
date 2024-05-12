@@ -3,8 +3,15 @@ import Product from "../models/productModel.js";
 
 //fetch all the products
 const getProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({}); //gets all the products
-  res.send(products);
+  // for pagination
+  const pageSize = 2;
+  const page = Number(req.query.pageNumber) || 1;
+  const count = await Product.countDocuments(); // gets total number of products
+
+  const products = await Product.find({})
+    .limit(pageSize)
+    .skip(pageSize * (page - 1)); // if on page 2, we want to skip products of page 1 and so on
+  res.send({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
 //get single product by id
@@ -129,5 +136,5 @@ export {
   createProduct,
   updateProduct,
   deleteProduct,
-  createProductReview
+  createProductReview,
 };

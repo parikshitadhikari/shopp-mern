@@ -73,7 +73,7 @@ const ProductScreen = () => {
         <h2>Loading...</h2>
       ) : error ? (
         <h2>{error?.data?.message || error.error}</h2>
-      ) : (
+      ) :
         <div>
           <Row>
             <Col md={5}>
@@ -230,7 +230,7 @@ const ProductScreen = () => {
             </Col>
           </Row>
         </div>
-      )}
+      }
     </div>
   );
 };
