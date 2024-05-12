@@ -2,6 +2,7 @@ import { Row, Col } from "react-bootstrap";
 import Product from "../components/Product.jsx";
 import { useGetProductsQuery } from "../store/slices/productsApiSlice.js";
 import { useParams } from "react-router-dom";
+import Paginate from "../components/Paginate.jsx";
 
 const HomeScreen = () => {
 
@@ -26,7 +27,8 @@ const HomeScreen = () => {
                 <Product product={product}></Product>
               </Col>
             ))}
-          </Row>
+            </Row>
+            <Paginate pages={data.pages} page={data.page} />
         </div>
       }
     </div>

@@ -4,13 +4,14 @@ import Product from "../models/productModel.js";
 //fetch all the products
 const getProducts = asyncHandler(async (req, res) => {
   // for pagination
-  const pageSize = 2;
+  const pageSize = 2; // no of products per page
   const page = Number(req.query.pageNumber) || 1;
   const count = await Product.countDocuments(); // gets total number of products
 
   const products = await Product.find({})
     .limit(pageSize)
     .skip(pageSize * (page - 1)); // if on page 2, we want to skip products of page 1 and so on
+  // page is current page, pages is total number of pages
   res.send({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
