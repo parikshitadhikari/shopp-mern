@@ -106,8 +106,8 @@ const OrderScreen = () => {
   return isLoading ? (
     <h1>Loading...</h1>
   ) : error ? (
-    <h2>{error.data.message}</h2>
-  ) : (
+    <h2>{error?.data?.message || error.error}</h2>
+  ) : 
     <div>
       <h1>Order {order._id}</h1>
       <Row>
@@ -259,7 +259,7 @@ const OrderScreen = () => {
         </Col>
       </Row>
     </div>
-  );
+  ;
 };
 
 export default OrderScreen;
