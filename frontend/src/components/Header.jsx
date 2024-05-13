@@ -6,7 +6,7 @@ import { useLogoutMutation } from "../store/slices/usersApiSlice";
 import { logout } from "../store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import SearchBox from "./SearchBox";
-
+import { resetCart } from "../store/slices/cartSlice";
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart); //getting cartItems from cart state
   const { userInfo } = useSelector((state) => state.auth); //getting userInfo from auth state
@@ -20,6 +20,9 @@ const Header = () => {
     try {
       await logoutApiCall().unwrap(); //unwrap the promise returned by the login function
       dispatch(logout()); //dispatch the logout action, which will clear the localStorage and set userInfo to null
+      // here we need to reset cart state for when a user logs out so the next user doesn't inherit the previous users cart and shipping
+      dispatch(resetCart());
+      navigate("/login");
     } catch (error) {
       console.log(error);
     }

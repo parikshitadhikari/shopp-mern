@@ -17,6 +17,7 @@ import {
 import { addToCart } from "../store/slices/cartSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import Meta from "../components/Meta.jsx";
 
 const ProductScreen = () => {
   const [qty, setQty] = useState(1); //default qty is 1
@@ -74,7 +75,8 @@ const ProductScreen = () => {
       ) : error ? (
         <h2>{error?.data?.message || error.error}</h2>
       ) :
-        <div>
+          <div>
+            <Meta title={product.name} />
           <Row>
             <Col md={5}>
               {/* fluid allows image to get smaller so that its responsive */}

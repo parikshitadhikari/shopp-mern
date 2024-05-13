@@ -4,6 +4,7 @@ import { useGetProductsQuery } from "../store/slices/productsApiSlice.js";
 import { useParams, Link } from "react-router-dom";
 import Paginate from "../components/Paginate.jsx";
 import ProductCarousel from "../components/ProductCarousel.jsx";
+import Meta from "../components/Meta.jsx";
 
 const HomeScreen = () => {
   const { pageNumber, keyword } = useParams();
@@ -29,8 +30,9 @@ const HomeScreen = () => {
         <h2>Loading...</h2>
       ) : error ? (
         <h2>{error?.data?.message || error.error}</h2>
-      ) : (
+      ) : 
         <div>
+          <Meta />
           <h1>Latest Products</h1>
           <Row>
             {data.products.map((product) => (
@@ -45,7 +47,7 @@ const HomeScreen = () => {
             keyword={keyword ? keyword : ""}
           />
         </div>
-      )}
+      }
     </div>
   );
 };
