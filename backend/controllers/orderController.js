@@ -1,53 +1,69 @@
-import asyncHandel from "../middleware/asyncHandler.js";
+import asyncHandler from "../middleware/asyncHandler.js";
 import Order from "../models/orderModel.js";
+import Product from "../models/productModel.js";
+import { calcPrices } from "../utils/calcPrices.js";
+import { verifyPayPalPayment, checkIfNewTransaction } from "../utils/paypal.js";
 
 //creating new order, post: api/orders, private
-const addOrderItems = asyncHandel(async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    shippingCharges,
-    tax,
-    totalPrice,
-  } = req.body; //these comes in as a body of http request, from frontend
+const addOrderItems = asyncHandler(async (req, res) => {
+  const { orderItems, shippingAddress, paymentMethod } = req.body;
 
   if (orderItems && orderItems.length === 0) {
-    // check if there is orderItems array and if it is empty
     res.status(400);
     throw new Error("No order items");
   } else {
-    // else create a new order i.e if there are order items
+    // here we must assume that the prices from our client are incorrect.
+    // We must only trust the price of the item as it exists in our DB.
+    // This prevents a user paying whatever they want by hacking our client
+
+    // getting the ordered items from our database
+    const itemsFromDB = await Product.find({
+      _id: { $in: orderItems.map((x) => x._id) },
+    });
+
+    // mapping over the order items and using the price from our items from database
+    const dbOrderItems = orderItems.map((itemFromClient) => {
+      const matchingItemFromDB = itemsFromDB.find(
+        (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
+      );
+      return {
+        ...itemFromClient,
+        product: itemFromClient._id,
+        price: matchingItemFromDB.price,
+        _id: undefined,
+      };
+    });
+
+    // calculating prices
+    const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
+      calcPrices(dbOrderItems);
+
     const order = new Order({
-      orderItems: orderItems.map((x) => ({
-        ...x,
-        product: x._id,
-        _id: undefined, // we dont need order id
-      })),
+      orderItems: dbOrderItems,
       user: req.user._id,
       shippingAddress,
       paymentMethod,
       itemsPrice,
-      shippingCharges,
-      tax,
+      taxPrice,
+      shippingPrice,
       totalPrice,
     });
 
-    const createdOrder = await order.save(); //save the order in the database
+    const createdOrder = await order.save();
+
     res.status(201).json(createdOrder);
   }
 });
 
 //get logged in user orders, get: api/orders/myorders, private
-const getMyOrders = asyncHandel(async (req, res) => {
+const getMyOrders = asyncHandler(async (req, res) => {
   //find all orders of the logged in user
   const orders = await Order.find({ user: req.user._id });
   res.json(orders);
 });
 
 //get order by id, get: api/orders/:id, private
-const getOrderById = asyncHandel(async (req, res) => {
+const getOrderById = asyncHandler(async (req, res) => {
   // req.params.id is the id of the order that is in the url
   const order = await Order.findById(req.params.id).populate(
     "user",
@@ -63,13 +79,24 @@ const getOrderById = asyncHandel(async (req, res) => {
 });
 
 //update order to paid, put: api/orders/:id/pay, private
-const updateOrderToPaid = asyncHandel(async (req, res) => {
-  const order = await Order.findById(req.params.id); // get the order
+const updateOrderToPaid = asyncHandler(async (req, res) => {
+  // here we need to verify the payment was made to PayPal before marking the order as paid
+  const { verified, value } = await verifyPayPalPayment(req.body.id);
+  if (!verified) throw new Error("Payment not verified");
+
+  // checking if this transaction has been used before
+  const isNewTransaction = await checkIfNewTransaction(Order, req.body.id);
+  if (!isNewTransaction) throw new Error("Transaction has been used before");
+
+  const order = await Order.findById(req.params.id);
 
   if (order) {
+    // checking the correct amount was paid
+    const paidCorrectAmount = order.totalPrice.toString() === value;
+    if (!paidCorrectAmount) throw new Error("Incorrect amount paid");
+
     order.isPaid = true;
     order.paidAt = Date.now();
-    // these below will come from paypal after order is paid
     order.paymentResult = {
       id: req.body.id,
       status: req.body.status,
@@ -78,14 +105,16 @@ const updateOrderToPaid = asyncHandel(async (req, res) => {
     };
 
     const updatedOrder = await order.save();
+
     res.json(updatedOrder);
   } else {
-    res.status(404).json({ message: "Order not found" });
+    res.status(404);
+    throw new Error("Order not found");
   }
 });
 
 //update order to delivered, put: api/orders/:id/deliver, private/admin
-const updateOrderToDelivered = asyncHandel(async (req, res) => {
+const updateOrderToDelivered = asyncHandler(async (req, res) => {
   // getting the order
   const order = await Order.findById(req.params.id);
 
@@ -100,7 +129,7 @@ const updateOrderToDelivered = asyncHandel(async (req, res) => {
 });
 
 //get all orders, get: api/orders, private/admin
-const getOrders = asyncHandel(async (req, res) => {
+const getOrders = asyncHandler(async (req, res) => {
   // from user collection, populate the order with id and name
   const orders = await Order.find({}).populate("user", "id name");
   res.status(200).json(orders);

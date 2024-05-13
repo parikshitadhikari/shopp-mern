@@ -63,7 +63,7 @@ const OrderScreen = () => {
     // the details  come from paypal
     return actions.order.capture().then(async function (details) {
       try {
-        await payOrder({ orderId, details }); // payorder is coming from usepayorder mutation
+        await payOrder({ orderId, details }).unwrap(); // payorder is coming from usepayorder mutation
         refetch();
         toast.success("Order is paid");
       } catch (err) {
