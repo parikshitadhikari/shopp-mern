@@ -4,11 +4,23 @@ import Product from "../models/productModel.js";
 //fetch all the products
 const getProducts = asyncHandler(async (req, res) => {
   // for pagination
-  const pageSize = 2; // no of products per page
+  const pageSize = 1; // no of products per page
   const page = Number(req.query.pageNumber) || 1;
-  const count = await Product.countDocuments(); // gets total number of products
 
-  const products = await Product.find({})
+  // for searching
+  const keyword = req.query.keyword
+    ? {
+        name: {
+          // regex allows to list all iphones when user searches for phone
+          $regex: req.query.keyword,
+          $options: "i", // makes case insensitive
+        },
+      }
+    : {};
+
+  const count = await Product.countDocuments({ ...keyword }); // gets total number of products
+  // if there is keyword, then count will be limited and so for find
+  const products = await Product.find({ ...keyword })
     .limit(pageSize)
     .skip(pageSize * (page - 1)); // if on page 2, we want to skip products of page 1 and so on
   // page is current page, pages is total number of pages
