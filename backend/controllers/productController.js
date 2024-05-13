@@ -4,7 +4,7 @@ import Product from "../models/productModel.js";
 //fetch all the products
 const getProducts = asyncHandler(async (req, res) => {
   // for pagination
-  const pageSize = 4; // no of products per page
+  const pageSize = process.env.PAGINATION_LIMIT; // no of products per page
   const page = Number(req.query.pageNumber) || 1;
 
   // for searching

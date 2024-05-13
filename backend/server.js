@@ -35,6 +35,22 @@ const __dirname = path.resolve(); // setting __dirname to current directory
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 // first arg is the file path i.e /uploads and make it static by passing in the loc of the folder i.e /uploads
 
+if (process.env.NODE_ENV === "production") {
+  // const __dirname = path.resolve();
+  // app.use("/uploads", express.static("/var/data/uploads"));
+  app.use(express.static(path.join(__dirname, "/frontend/build"))); // setting static folder
+
+  // any route that is not amongst the above route will be redirected to index.html
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"))
+  );
+} else {
+  // if not in production then we are using react dev server (localhost)
+  app.get("/", (req, res) => {
+    res.send("API is running....");
+  });
+}
+
 app.use(notFound);
 app.use(errorHandler);
 
