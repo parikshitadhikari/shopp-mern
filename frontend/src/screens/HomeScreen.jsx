@@ -3,6 +3,7 @@ import Product from "../components/Product.jsx";
 import { useGetProductsQuery } from "../store/slices/productsApiSlice.js";
 import { useParams, Link } from "react-router-dom";
 import Paginate from "../components/Paginate.jsx";
+import ProductCarousel from "../components/ProductCarousel.jsx";
 
 const HomeScreen = () => {
   const { pageNumber, keyword } = useParams();
@@ -16,11 +17,13 @@ const HomeScreen = () => {
   return (
     <div>
       {/* if there is keyword (product is searched) then showing the backbutton */}
-      {keyword && 
+      {keyword ? (
         <Link to="/" className="btn btn-light mb-4">
           Go Back
         </Link>
-      }
+      ) : (
+        <ProductCarousel />
+      )}
       {/* check for loading and error */}
       {isLoading ? (
         <h2>Loading...</h2>

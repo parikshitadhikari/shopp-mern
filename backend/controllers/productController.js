@@ -4,7 +4,7 @@ import Product from "../models/productModel.js";
 //fetch all the products
 const getProducts = asyncHandler(async (req, res) => {
   // for pagination
-  const pageSize = 1; // no of products per page
+  const pageSize = 4; // no of products per page
   const page = Number(req.query.pageNumber) || 1;
 
   // for searching
@@ -142,6 +142,12 @@ const createProductReview = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 });
+// GET: /api/products/top , public
+const getTopProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  // finding all products, sorting by rating and limiting to only three products
+  res.json(products);
+});
 
 export {
   getProducts,
@@ -150,4 +156,5 @@ export {
   updateProduct,
   deleteProduct,
   createProductReview,
+  getTopProducts
 };
