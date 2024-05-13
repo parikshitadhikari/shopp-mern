@@ -1,7 +1,7 @@
 import { Row, Col } from "react-bootstrap";
 import Product from "../components/Product.jsx";
 import { useGetProductsQuery } from "../store/slices/productsApiSlice.js";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Paginate from "../components/Paginate.jsx";
 
 const HomeScreen = () => {
@@ -15,12 +15,18 @@ const HomeScreen = () => {
 
   return (
     <div>
+      {/* if there is keyword (product is searched) then showing the backbutton */}
+      {keyword && 
+        <Link to="/" className="btn btn-light mb-4">
+          Go Back
+        </Link>
+      }
       {/* check for loading and error */}
       {isLoading ? (
         <h2>Loading...</h2>
       ) : error ? (
         <h2>{error?.data?.message || error.error}</h2>
-      ) : 
+      ) : (
         <div>
           <h1>Latest Products</h1>
           <Row>
@@ -36,7 +42,7 @@ const HomeScreen = () => {
             keyword={keyword ? keyword : ""}
           />
         </div>
-      }
+      )}
     </div>
   );
 };
